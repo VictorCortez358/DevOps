@@ -45,6 +45,12 @@ jobs:
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        
+    - name: Add server-dev to known_hosts 
+      run: ssh-keyscan -H 54.92.132.30 >> ~/.ssh/known_hosts 
+    
+    - name: Add server-prod to known_hosts 
+      run: ssh-keyscan -H 3.89.132.144 >> ~/.ssh/known_hosts
 
     - name: Deploy to EC2 (server-dev)
       if: github.ref == 'refs/heads/server-dev'
