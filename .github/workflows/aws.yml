@@ -16,6 +16,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Set up .env
+      run: |
+        echo -e "PRODUCTS_SERVICE=${{ secrets.PRODUCTS_SERVICE }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
+
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
@@ -24,18 +28,15 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Install Docker
+    - name: Install Docker and Docker Compose
       run: |
         sudo apt-get update
         sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
         curl -fsSL https://get.docker.com -o get-docker.sh
         sudo sh get-docker.sh
-        sudo systemctl enable --now docker
-
-    - name: Install Docker Compose
-      run: |
         sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         sudo chmod +x /usr/local/bin/docker-compose
+        sudo systemctl enable --now docker
 
     - name: Build Docker image
       run: docker-compose build
@@ -44,53 +45,65 @@ jobs:
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        
+    - name: Add server-dev to known_hosts 
+      run: ssh-keyscan -H 54.92.132.30 >> ~/.ssh/known_hosts 
+    
+    - name: Add server-prod to known_hosts 
+      run: ssh-keyscan -H 3.89.132.144 >> ~/.ssh/known_hosts
 
     - name: Deploy to EC2 (server-dev)
       if: github.ref == 'refs/heads/server-dev'
       run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@54.92.132.30 << 'EOF'
-          # Instalar Docker y Docker Compose si no están ya instalados
-          sudo apt-get update || exit 1
-          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common || exit 1
-          curl -fsSL https://get.docker.com -o get-docker.sh || exit 1
-          sudo sh get-docker.sh || exit 1
-          sudo systemctl enable --now docker || exit 1
+        scp .env ubuntu@54.92.132.30:/home/ubuntu/server-dev/.env
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@54.92.132.30 << 'EOF'
+          # Asegúrate de que Docker y Docker Compose estén instalados
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sudo sh get-docker.sh
+          sudo systemctl enable --now docker
 
-          # Instalar Docker Compose
-          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose || exit 1
-          sudo chmod +x /usr/local/bin/docker-compose || exit 1
+          sudo usermod -aG docker $USER
+          sudo chmod 666 /var/run/docker.sock
+
+          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
           
           # Clonar o actualizar el repositorio
-          mkdir -p /home/ubuntu/server-dev || exit 1
-          git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-dev || (cd /home/ubuntu/server-dev && git pull origin server-dev) || exit 1
-          
+          mkdir -p /home/ubuntu/server-dev
+          git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-dev || (cd /home/ubuntu/server-dev && git pull origin server-dev)
+
           # Levantar contenedores
-          cd /home/ubuntu/server-dev || exit 1
-          docker-compose down || exit 1
-          docker-compose up -d || exit 1
+          cd /home/ubuntu/server-dev
+          docker-compose down
+          docker-compose up -d
         EOF
 
     - name: Deploy to EC2 (server-prod)
       if: github.ref == 'refs/heads/server-prod'
       run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@3.89.132.144 << 'EOF'
-          # Instalar Docker y Docker Compose si no están ya instalados
-          sudo apt-get update || exit 1
-          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common || exit 1
-          curl -fsSL https://get.docker.com -o get-docker.sh || exit 1
-          sudo sh get-docker.sh || exit 1
-          sudo systemctl enable --now docker || exit 1
+        scp .env ubuntu@3.89.132.144:/home/ubuntu/server-prod/.env
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@3.89.132.144 << 'EOF'
+          # Asegúrate de que Docker y Docker Compose estén instalados
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sudo sh get-docker.sh
+          sudo systemctl enable --now docker
 
-          # Instalar Docker Compose
-          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose || exit 1
-          sudo chmod +x /usr/local/bin/docker-compose || exit 1
+          sudo usermod -aG docker $USER
+          sudo chmod 666 /var/run/docker.sock
+
+          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
           
           # Clonar o actualizar el repositorio
-          mkdir -p /home/ubuntu/server-prod || exit 1
-          git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-prod || (cd /home/ubuntu/server-prod && git pull origin server-prod) || exit 1
-          
+          mkdir -p /home/ubuntu/server-prod
+          git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-prod || (cd /home/ubuntu/server-prod && git pull origin server-prod)
+
           # Levantar contenedores
-          cd /home/ubuntu/server-prod || exit 1
-          docker-compose down || exit 1
-          docker-compose up -d || exit 1
+          cd /home/ubuntu/server-prod
+          docker-compose down
+          docker-compose up -d
         EOF
