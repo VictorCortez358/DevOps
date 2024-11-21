@@ -3,7 +3,7 @@ let path = require('path');
 let app = express();
 
 // with docker-compose: container-name, with K8s: service-name 
-let backendEndpoints = process.env.BACKEND_SERVICE_DEV || process.env.BACKEND_SERVICE_PROD || 'localhost';
+let backendEndpoints = process.env.BACKEND_SERVICE || 'backend';
 
 app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, "index.html"));
@@ -37,8 +37,6 @@ app.get('/get-products', function (req, res) {
     req.end();
 });
 
-
 app.listen(3000, function () {
     console.log("app listening on port 3000!");
 });
-
