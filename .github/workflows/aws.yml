@@ -36,21 +36,42 @@ jobs:
       if: github.ref == 'refs/heads/server-dev'
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@54.92.132.30 << 'EOF'
-          mkdir -p /home/ubuntu/server-dev
-          git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-dev || (cd /home/ubuntu/server-dev && git pull origin server-dev)
-          cd /home/ubuntu/server-dev
-          docker-compose down
-          docker-compose up -d
+          # Instalar Docker y Docker Compose si no están ya instalados
+          sudo apt-get update || exit 1
+          sudo apt-get install -y docker.io || exit 1
+          sudo apt-get install -y curl || exit 1
+          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose || exit 1
+          sudo chmod +x /usr/local/bin/docker-compose || exit 1
+          sudo systemctl enable --now docker || exit 1
+
+          # Clonar o actualizar el repositorio
+          mkdir -p /home/ubuntu/server-dev || exit 1
+          git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-dev || (cd /home/ubuntu/server-dev && git pull origin server-dev) || exit 1
+          
+          # Levantar contenedores
+          cd /home/ubuntu/server-dev || exit 1
+          docker-compose down || exit 1
+          docker-compose up -d || exit 1
         EOF
 
     - name: Deploy to EC2 (server-prod)
       if: github.ref == 'refs/heads/server-prod'
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@3.89.132.144 << 'EOF'
-          mkdir -p /home/ubuntu/server-prod
-          git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-prod || (cd /home/ubuntu/server-prod && git pull origin server-prod)
-          cd /home/ubuntu/server-prod
-          docker-compose down
-          docker-compose up -d
-        EOF
+          # Instalar Docker y Docker Compose si no están ya instalados
+          sudo apt-get update || exit 1
+          sudo apt-get install -y docker.io || exit 1
+          sudo apt-get install -y curl || exit 1
+          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose || exit 1
+          sudo chmod +x /usr/local/bin/docker-compose || exit 1
+          sudo systemctl enable --now docker || exit 1
 
+          # Clonar o actualizar el repositorio
+          mkdir -p /home/ubuntu/server-prod || exit 1
+          git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-prod || (cd /home/ubuntu/server-prod && git pull origin server-prod) || exit 1
+          
+          # Levantar contenedores
+          cd /home/ubuntu/server-prod || exit 1
+          docker-compose down || exit 1
+          docker-compose up -d || exit 1
+        EOF
