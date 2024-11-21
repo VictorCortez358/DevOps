@@ -3,7 +3,7 @@ let path = require('path');
 let app = express();
 
 // with docker-compose: container-name, with K8s: service-name 
-let productsEndpoint = process.env.PRODUCTS_SERVICE || 'localhost'
+let backendEndpoints = process.env.BACKEND_SERVICE_DEV || process.env.BACKEND_SERVICE_PROD || 'localhost';
 
 app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, "index.html"));
@@ -13,7 +13,7 @@ app.get('/get-products', function (req, res) {
     var http = require('http');
 
     var options = {
-        host: productsEndpoint,
+        host: backendEndpoints,
         path: '/',
         port: '3001',
         method: 'GET'
