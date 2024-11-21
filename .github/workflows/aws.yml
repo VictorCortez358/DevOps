@@ -18,7 +18,7 @@ jobs:
 
     - name: Set up .env
       run: |
-        echo -e "PRODUCTS_SERVICE=${{ secrets.PRODUCTS_SERVICE }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
+        echo -e "BACKEND_SERVICE_PROD=${{ secrets.BACKEND_SERVICE_PROD }}\nBACKEND_SERVICE_DEV=${{ secrets.BACKEND_SERVICE_DEV }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
