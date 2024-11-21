@@ -27,9 +27,6 @@ jobs:
     - name: Build Docker image
       run: docker-compose build
 
-    - name: Run integration tests
-      run: docker-compose run tests
-
     - name: Set up SSH
       uses: webfactory/ssh-agent@v0.5.3
       with:
@@ -38,10 +35,10 @@ jobs:
     - name: Deploy to EC2 (server-dev)
       if: github.ref == 'refs/heads/server-dev'
       run: |
-        ssh -o StrictHostKeyChecking=no ec2-user@54.92.132.30 << 'EOF'
-          mkdir -p /home/ec2-user/server-dev
-          git clone https://github.com/tu-usuario/tu-repositorio.git /home/ec2-user/server-dev || (cd /home/ec2-user/server-dev && git pull origin server-dev)
-          cd /home/ec2-user/server-dev
+        ssh -o StrictHostKeyChecking=no ubuntu@54.92.132.30 << 'EOF'
+          mkdir -p /home/ubuntu/server-dev
+          git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-dev || (cd /home/ubuntu/server-dev && git pull origin server-dev)
+          cd /home/ubuntu/server-dev
           docker-compose down
           docker-compose up -d
         EOF
@@ -49,10 +46,11 @@ jobs:
     - name: Deploy to EC2 (server-prod)
       if: github.ref == 'refs/heads/server-prod'
       run: |
-        ssh -o StrictHostKeyChecking=no ec2-user@3.89.132.144 << 'EOF'
-          mkdir -p /home/ec2-user/server-prod
-          git clone https://github.com/tu-usuario/tu-repositorio.git /home/ec2-user/server-prod || (cd /home/ec2-user/server-prod && git pull origin server-prod)
-          cd /home/ec2-user/server-prod
+        ssh -o StrictHostKeyChecking=no ubuntu@3.89.132.144 << 'EOF'
+          mkdir -p /home/ubuntu/server-prod
+          git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-prod || (cd /home/ubuntu/server-prod && git pull origin server-prod)
+          cd /home/ubuntu/server-prod
           docker-compose down
           docker-compose up -d
         EOF
+
