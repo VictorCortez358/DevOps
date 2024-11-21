@@ -49,6 +49,7 @@ jobs:
     - name: Deploy to EC2 (server-dev)
       if: github.ref == 'refs/heads/server-dev'
       run: |
+        scp .env ubuntu@54.92.132.30:/home/ubuntu/server-dev/.env
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@54.92.132.30 << 'EOF'
           # Asegúrate de que Docker y Docker Compose estén instalados
           sudo apt-get update
@@ -73,6 +74,7 @@ jobs:
     - name: Deploy to EC2 (server-prod)
       if: github.ref == 'refs/heads/server-prod'
       run: |
+        scp .env ubuntu@3.89.132.144:/home/ubuntu/server-prod/.env
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@3.89.132.144 << 'EOF'
           # Asegúrate de que Docker y Docker Compose estén instalados
           sudo apt-get update
