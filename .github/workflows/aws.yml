@@ -25,25 +25,34 @@ jobs:
       with:
         node-version: '14'
 
+    # Verificar la estructura del repositorio
+    - name: List files
+      run: ls -la
+
     # Instalar dependencias para el backend
     - name: Install backend dependencies
       run: npm install
       working-directory: ./app/backend  # Ruta del backend
 
-    # Iniciar el servidor backend en segundo plano 
-    - name: Start backend server 
-      run: | 
-      nohup npm start & sleep 20 # Esperar para asegurarse de que el servidor esté corriendo 
-      working-directory: ./app/backend # Ruta del backend \
-    
-    # Verificar que el servidor backend esté corriendo 
-    - name: Verify backend server 
-      run: curl -I http://localhost:3001 
-    
-    # Ejecutar pruebas del backend 
-    - name: Run backend tests 
-      run: npm test 
-      working-directory: ./app/backend # Ruta del backend
+    # Iniciar el servidor backend en segundo plano
+    - name: Start backend server
+      run: |
+        nohup npm start > backend.log 2>&1 &
+        sleep 20  # Esperar para asegurarse de que el servidor esté corriendo
+      working-directory: ./app/backend  # Ruta del backend
+
+    # Verificar que el servidor backend esté corriendo
+    - name: Verify backend server
+      run: curl -I http://localhost:3001
+
+    # Mostrar los logs del servidor backend
+    - name: Show backend server logs
+      run: cat ./app/backend/backend.log
+
+    # Ejecutar pruebas del backend
+    - name: Run backend tests
+      run: npm test
+      working-directory: ./app/backend  # Ruta del backend
 
     # Instalar dependencias para el frontend
     - name: Install frontend dependencies
@@ -58,16 +67,17 @@ jobs:
     # Iniciar el servidor frontend en segundo plano
     - name: Start frontend server
       run: |
-        cd ./app/frontend && nohup npm start &
-        sleep 20  # Asegúrate de que el servidor esté listo antes de ejecutar las pruebas
-        
-    # Verificar que el servidor frontend esté corriendo 
-    - name: Verify frontend server 
+        nohup npm start > frontend.log 2>&1 &
+        sleep 20  # Esperar para asegurarse de que el servidor esté corriendo
+      working-directory: ./app/frontend  # Ruta del frontend
+
+    # Verificar que el servidor frontend esté corriendo
+    - name: Verify frontend server
       run: curl -I http://localhost:3000
-    
-    # Mostrar los logs del servidor frontend 
-    - name: Show frontend server logs 
-      run: cat nohup.out
+
+    # Mostrar los logs del servidor frontend
+    - name: Show frontend server logs
+      run: cat ./app/frontend/frontend.log
 
     # Ejecutar pruebas del frontend
     - name: Run frontend tests
