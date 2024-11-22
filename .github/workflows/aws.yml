@@ -129,7 +129,7 @@ jobs:
           if [ ! -d /home/ubuntu/$BRANCH_DIR/.git ]; then
             git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/$BRANCH_DIR
             cd /home/ubuntu/$BRANCH_DIR
-            git checkout server-dev  # Si es un clon, asegúrate de usar la rama correcta
+            git checkout $BRANCH_DIR  # Asegúrate de usar la rama correcta
           else
             cd /home/ubuntu/$BRANCH_DIR && git pull origin $BRANCH_DIR
           fi
