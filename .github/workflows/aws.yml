@@ -37,7 +37,7 @@ jobs:
     # Iniciar el servidor backend en segundo plano 
     - name: Start backend server 
       run: | 
-      nohup npm start & sleep 20 # Esperar para asegurarse de que el servidor esté corriendo 
+        nohup npm start & sleep 20 # Esperar para asegurarse de que el servidor esté corriendo 
       working-directory: ./app/backend # Ruta del backend \
     
     # Verificar que el servidor backend esté corriendo 
