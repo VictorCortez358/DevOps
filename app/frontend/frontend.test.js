@@ -4,9 +4,9 @@ test('should load the page and find the View button', async ({ page }) => {
     // Navegar a la página de inicio
     await page.goto('http://localhost:3000');
 
-    // Verificar que el título de la página esté presente
-    const title = await page.title();
-    expect(title).toBe('Expected Page Title'); // Reemplaza 'Expected Page Title' con el título real de la página
+    // Verificar que la página no tenga errores visibles
+    const errorText = await page.innerText('body');
+    expect(errorText).not.toContain('Error');  // Asegurarse de que no haya errores en el cuerpo de la página
 
     // Verificar que el botón esté presente
     const button = await page.$('button');
