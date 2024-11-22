@@ -49,7 +49,11 @@ jobs:
     - name: Start frontend server
       run: |
         nohup npm start &
-        sleep 10  # Esperar para asegurarse de que el servidor esté corriendo
+        sleep 30  # Esperar para asegurarse de que el servidor esté corriendo
+
+    # Verificar que el servidor frontend esté corriendo 
+    - name: Verify frontend server 
+      run: curl -I http://localhost:3000
 
     # Ejecutar pruebas del frontend
     - name: Run frontend tests
