@@ -27,7 +27,13 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    # 4. Instalar Docker y Docker Compose
+    # 4. Crear y verificar el archivo .env
+    - name: Set up .env
+      run: |
+        echo -e "BACKEND_SERVICE=${{ secrets.BACKEND_SERVICE }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
+        cat .env # Verificar el contenido del archivo .env
+
+    # 5. Instalar Docker y Docker Compose
     - name: Install Docker and Docker Compose
       run: |
         sudo apt-get update
@@ -38,27 +44,27 @@ jobs:
         sudo chmod +x /usr/local/bin/docker-compose
         sudo systemctl enable --now docker
 
-    # 5. Levantar servicios con docker-compose
+    # 6. Levantar servicios con docker-compose
     - name: Start services with Docker Compose
       run: docker-compose up -d
 
-    # 6. Ejecutar pruebas del backend
+    # 7. Ejecutar pruebas del backend
     - name: Run backend tests
       run: npm test
 
-    # 7. Ejecutar pruebas E2E para el frontend
+    # 8. Ejecutar pruebas E2E para el frontend
     - name: Run frontend tests
       run: npm run e2e-test
 
-    # 8. Detener y eliminar servicios
+    # 9. Detener y eliminar servicios
     - name: Stop and clean up Docker Compose
       run: docker-compose down
 
-    # 9. Construir imagen Docker
+    # 10. Construir imagen Docker
     - name: Build Docker image
       run: docker-compose build
 
-    # 10. Configurar SSH para despliegue
+    # 11. Configurar SSH para despliegue
     - name: Set up SSH
       uses: webfactory/ssh-agent@v0.5.3
       with:
@@ -70,7 +76,7 @@ jobs:
     - name: Add server-prod to known_hosts 
       run: ssh-keyscan -H 3.89.132.144 >> ~/.ssh/known_hosts
 
-    # 11. Desplegar a server-dev
+    # 12. Desplegar a server-dev
     - name: Deploy to EC2 (server-dev)
       if: github.ref == 'refs/heads/server-dev'
       run: |
@@ -91,7 +97,7 @@ jobs:
           docker-compose up -d
         EOF
 
-    # 12. Desplegar a server-prod
+    # 13. Desplegar a server-prod
     - name: Deploy to EC2 (server-prod)
       if: github.ref == 'refs/heads/server-prod'
       run: |
