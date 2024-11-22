@@ -85,20 +85,24 @@ jobs:
     - name: Deploy to EC2 (server-dev)
       if: github.ref == 'refs/heads/server-dev'
       run: |
-        scp .env ubuntu@54.92.132.30:/home/ubuntu/server-dev/.env
+        scp .env ubuntu@52.207.223.222:/home/ubuntu/server-dev/.env
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@54.92.132.30 << 'EOF'
           sudo usermod -aG docker $USER
           sudo chmod 666 /var/run/docker.sock
           
-          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
+          # Instalar Docker Compose si no está presente
+          if ! [ -x "$(command -v docker-compose)" ]; then
+            curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+          fi
           
-          # Clonar o actualizar el repositorio
+          # Crear directorio del proyecto si no existe y sincronizar el repositorio
           mkdir -p /home/ubuntu/server-dev
-          git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-dev || (cd /home/ubuntu/server-dev && git pull origin server-dev)
-
-          # Copiar el archivo .env 
-          cp /home/ubuntu/server-dev/.env /home/ubuntu/server-dev/.env
+          if [ ! -d /home/ubuntu/server-dev/.git ]; then
+            git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-dev
+          else
+            cd /home/ubuntu/server-dev && git pull origin server-dev || (echo "Error al actualizar el repositorio"; exit 1)
+          fi
           
           # Levantar contenedores
           cd /home/ubuntu/server-dev
@@ -109,20 +113,24 @@ jobs:
     - name: Deploy to EC2 (server-prod)
       if: github.ref == 'refs/heads/server-prod'
       run: |
-        scp .env ubuntu@3.89.132.144:/home/ubuntu/server-prod/.env
+        scp .env ubuntu@107.22.89.148:/home/ubuntu/server-prod/.env
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@3.89.132.144 << 'EOF'
           sudo usermod -aG docker $USER
           sudo chmod 666 /var/run/docker.sock
 
-          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
+          # Instalar Docker Compose si no está presente
+          if ! [ -x "$(command -v docker-compose)" ]; then
+            curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+          fi
           
-          # Clonar o actualizar el repositorio
-          mkdir -p /home/ubuntu/server-prod
-          git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-prod || (cd /home/ubuntu/server-prod && git pull origin server-prod)
-
-          # Copiar el archivo .env 
-          cp /home/ubuntu/server-prod/.env /home/ubuntu/server-prod/.env
+          # Crear directorio del proyecto si no existe y sincronizar el repositorio
+          mkdir -p /home/ubuntu/server-dev
+          if [ ! -d /home/ubuntu/server-dev/.git ]; then
+            git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-dev
+          else
+            cd /home/ubuntu/server-dev && git pull origin server-dev || (echo "Error al actualizar el repositorio"; exit 1)
+          fi
           
           # Levantar contenedores
           cd /home/ubuntu/server-prod
