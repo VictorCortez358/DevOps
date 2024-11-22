@@ -82,6 +82,15 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+    # Agregar servidores a known_hosts con manejo de errores 
+    - name: Add server-dev to known_hosts 
+      run: | 
+        ssh-keyscan -H 52.207.223.222 >> ~/.ssh/known_hosts || echo "Failed to add server-dev to known_hosts" 
+    
+    - name: Add server-prod to known_hosts 
+      run: | 
+        ssh-keyscan -H 107.22.89.148 >> ~/.ssh/known_hosts || echo "Failed to add server-prod to known_hosts"
+
     - name: Deploy to EC2 (server-dev)
       if: github.ref == 'refs/heads/server-dev'
       run: |
