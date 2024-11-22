@@ -94,11 +94,14 @@ jobs:
     - name: Deploy to EC2 (server-dev)
       if: github.ref == 'refs/heads/server-dev'
       run: |
-        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@52.207.223.222 << 'EOF' 
-          # Crear el directorio si no existe
-          mkdir -p /home/ubuntu/server-dev
-          scp .env ubuntu@52.207.223.222:/home/ubuntu/server-dev/.env || (echo "Error al copiar el archivo .env"; exit 1)
+        f [ ! -f .env ]; then
+          echo "Error: el archivo .env no existe"
+          exit 1
+        fi
+        scp .env ubuntu@52.207.223.222:/home/ubuntu/server-dev/.env || (echo "Error al copiar el archivo .env"; exit 1)
 
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@52.207.223.222 << 'EOF' 
+          mkdir -p /home/ubuntu/server-dev
           sudo usermod -aG docker $USER
           sudo chmod 666 /var/run/docker.sock
           
@@ -124,11 +127,13 @@ jobs:
     - name: Deploy to EC2 (server-prod)
       if: github.ref == 'refs/heads/server-prod'
       run: |
-        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@107.22.89.148 << 'EOF'
-          # Crear el directorio si no existe
+        f [ ! -f .env ]; then
+          echo "Error: el archivo .env no existe"
+          exit 1
+        fi
+        scp .env ubuntu@107.22.89.148:/home/ubuntu/server-dev/.env || (echo "Error al copiar el archivo .env"; exit 1)
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@107.22.89.148 << 'EOF' 
           mkdir -p /home/ubuntu/server-dev
-          scp .env ubuntu@107.22.89.148:/home/ubuntu/server-dev/.env || (echo "Error al copiar el archivo .env"; exit 1)
-          
           sudo usermod -aG docker $USER
           sudo chmod 666 /var/run/docker.sock
 
