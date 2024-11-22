@@ -8,6 +8,7 @@ app.get('/', (req, res) => {
             { name: 'MacBook Air M2 2022 midnight 13.6', price: 500 },
             { name: 'Monitor Samsung', price: 100 },
             { name: 'Keyboard', price: 30 },
+            { name: 'Mouse', price: 20 },
         ],
     });
 });
