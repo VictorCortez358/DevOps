@@ -82,7 +82,7 @@
             if (document.getElementsByClassName("product").length != 0) {
                 return;
             }
-
+            console.log("Fetching products...");
             const response = await fetch(`${window.location.href}get-products`);            
             const jsonData = await response.json();
 
