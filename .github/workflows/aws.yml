@@ -18,11 +18,12 @@ jobs:
 
     - name: Set up .env file
       run: |
-        if [[ "${{ github.ref }}" == "refs/heads/server-dev" ]]; then
+        if [[ "${{ github.base_ref }}" == "server-dev" ]]; then
           echo -e "BACKEND_SERVICE=${{ secrets.BACKEND_SERVICE_DEV }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
-        elif [[ "${{ github.ref }}" == "refs/heads/server-prod" ]]; then
+        elif [[ "${{ github.base_ref }}" == "server-prod" ]]; then
           echo -e "BACKEND_SERVICE=${{ secrets.BACKEND_SERVICE_PROD }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
         fi
+
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
