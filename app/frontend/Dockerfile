@@ -1,5 +1,5 @@
 # Imagen de Nodejs
-FROM node:16-alpine
+FROM node:18-alpine
 
 # Directorio de trabajo
 WORKDIR /app
