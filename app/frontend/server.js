@@ -6,7 +6,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 let app = express();
 
 // with docker-compose: container-name, with K8s: service-name 
-let backendEndpoints = process.env.BACKEND_SERVICE || 'localhost';
+let backendEndpoints = process.env.BACKEND_SERVICE_DEV || process.env.BACKEND_SERVICE_PROD || 'localhost';
 
 app.get('/', function (req, res) {
     res.sendFile(join(__dirname, "index.html"));

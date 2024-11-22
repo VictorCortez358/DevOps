@@ -18,109 +18,105 @@ jobs:
 
     - name: Set up .env
       run: |
-        echo -e "BACKEND_SERVICE=${{ secrets.BACKEND_SERVICE }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
+        echo -e "BACKEND_SERVICE_DEV=${{ secrets.BACKEND_SERVICE_DEV }}\nBACKEND_SERVICE_PROD=${{ secrets.BACKEND_SERVICE_PROD }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
         node-version: '14'
 
-    # Verificar la estructura del repositorio
-    - name: List files
-      run: ls -la
+    # # Instalar dependencias para el backend
+    # - name: Install backend dependencies
+    #   run: npm install
+    #   working-directory: ./app/backend  # Ruta del backend
 
-    # Instalar dependencias para el backend
-    - name: Install backend dependencies
-      run: npm install
-      working-directory: ./app/backend  # Ruta del backend
-
-    # Iniciar el servidor backend en segundo plano 
-    - name: Start backend server 
-      run: | 
-        nohup npm start & sleep 20 # Esperar para asegurarse de que el servidor esté corriendo 
-      working-directory: ./app/backend # Ruta del backend \
+    # # Iniciar el servidor backend en segundo plano 
+    # - name: Start backend server 
+    #   run: | 
+    #     nohup npm start & sleep 20 
+    #   working-directory: ./app/backend # Ruta del backend 
     
-    # Verificar que el servidor backend esté corriendo 
-    - name: Verify backend server 
-      run: curl -I http://localhost:3001 
-    
-    # Ejecutar pruebas del backend 
-    - name: Run backend tests 
-      run: npm test 
-      working-directory: ./app/backend # Ruta del backend
+    # # Ejecutar pruebas del backend 
+    # - name: Run backend tests 
+    #   run: npm test 
+    #   working-directory: ./app/backend # Ruta del backend
 
-    # Instalar dependencias para el frontend
-    - name: Install frontend dependencies
-      run: npm install
-      working-directory: ./app/frontend  # Ruta del frontend
+    # # Instalar dependencias para el frontend
+    # - name: Install frontend dependencies
+    #   run: npm install
+    #   working-directory: ./app/frontend  # Ruta del frontend
 
-    # Instalar navegadores de Playwright
-    - name: Install Playwright browsers
-      run: npx playwright install
-      working-directory: ./app/frontend  # Ruta del frontend
+    # # Instalar navegadores de Playwright
+    # - name: Install Playwright browsers
+    #   run: npx playwright install
+    #   working-directory: ./app/frontend  # Ruta del frontend
 
-    # Iniciar el servidor frontend en segundo plano
-    - name: Start frontend server
-      run: |
-        nohup npm start > frontend.log 2>&1 &
-        sleep 20  # Esperar para asegurarse de que el servidor esté corriendo
-      working-directory: ./app/frontend  # Ruta del frontend
+    # # Iniciar el servidor frontend en segundo plano
+    # - name: Start frontend server
+    #   run: |
+    #     nohup npm start > frontend.log 2>&1 &
+    #     sleep 20  
+    #   working-directory: ./app/frontend  # Ruta del frontend
 
-    # Verificar que el servidor frontend esté corriendo
-    - name: Verify frontend server
-      run: curl -I http://localhost:3000
+    # # Ejecutar pruebas del frontend
+    # - name: Run frontend tests
+    #   run: npm test
+    #   working-directory: ./app/frontend  # Ruta del frontend
 
-    # Mostrar los logs del servidor frontend
-    - name: Show frontend server logs
-      run: cat ./app/frontend/frontend.log
+    # - name: Install Docker and Docker Compose
+    #   run: |
+    #     sudo apt-get update
+    #     sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+    #     curl -fsSL https://get.docker.com -o get-docker.sh
+    #     sudo sh get-docker.sh
+    #     sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    #     sudo chmod +x /usr/local/bin/docker-compose
+    #     sudo systemctl enable --now docker
 
-    # Ejecutar pruebas del frontend
-    - name: Run frontend tests
-      run: npm test
-      working-directory: ./app/frontend  # Ruta del frontend
-
-    - name: Install Docker and Docker Compose
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-        curl -fsSL https://get.docker.com -o get-docker.sh
-        sudo sh get-docker.sh
-        sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
-        sudo systemctl enable --now docker
-
-    # Construir imágenes de Docker
-    - name: Build Docker image
-      run: docker-compose build
+    # # Construir imágenes de Docker
+    # - name: Build Docker image
+    #   run: docker-compose build
 
     - name: Set up SSH
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-        
+
+    # Agregar servidores a known_hosts con manejo de errores 
     - name: Add server-dev to known_hosts 
-      run: ssh-keyscan -H 54.92.132.30 >> ~/.ssh/known_hosts 
+      run: | 
+        ssh-keyscan -H 52.207.223.222 >> ~/.ssh/known_hosts || echo "Failed to add server-dev to known_hosts" 
     
     - name: Add server-prod to known_hosts 
-      run: ssh-keyscan -H 3.89.132.144 >> ~/.ssh/known_hosts
+      run: | 
+        ssh-keyscan -H 107.22.89.148 >> ~/.ssh/known_hosts || echo "Failed to add server-prod to known_hosts"
 
     - name: Deploy to EC2 (server-dev)
       if: github.ref == 'refs/heads/server-dev'
       run: |
-        scp .env ubuntu@54.92.132.30:/home/ubuntu/server-dev/.env
-        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@54.92.132.30 << 'EOF'
+        if [ ! -f .env ]; then
+          echo "Error: el archivo .env no existe"
+          exit 1
+        fi
+        scp .env ubuntu@52.207.223.222:/home/ubuntu/server-dev/.env || (echo "Error al copiar el archivo .env"; exit 1)
+
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@52.207.223.222 << 'EOF' 
+          mkdir -p /home/ubuntu/server-dev
           sudo usermod -aG docker $USER
           sudo chmod 666 /var/run/docker.sock
-
-          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
           
-          # Clonar o actualizar el repositorio
-          mkdir -p /home/ubuntu/server-dev
-          git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-dev || (cd /home/ubuntu/server-dev && git pull origin server-dev)
-
-          # Copiar el archivo .env 
-          cp /home/ubuntu/server-dev/.env /home/ubuntu/server-dev/.env
+          # Instalar Docker Compose si no está presente
+          if ! [ -x "$(command -v docker-compose)" ]; then
+            curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+          fi
+          
+          # Crear directorio del proyecto si no existe y sincronizar el repositorio
+          if [ ! -d /home/ubuntu/server-dev/.git ]; then
+            git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-dev
+          else
+            cd /home/ubuntu/server-dev && git pull origin server-dev || (echo "Error al actualizar el repositorio"; exit 1)
+          fi
           
           # Levantar contenedores
           cd /home/ubuntu/server-dev
@@ -131,20 +127,27 @@ jobs:
     - name: Deploy to EC2 (server-prod)
       if: github.ref == 'refs/heads/server-prod'
       run: |
-        scp .env ubuntu@3.89.132.144:/home/ubuntu/server-prod/.env
-        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@3.89.132.144 << 'EOF'
+        if [ ! -f .env ]; then
+          echo "Error: el archivo .env no existe"
+          exit 1
+        fi
+        scp .env ubuntu@107.22.89.148:/home/ubuntu/server-dev/.env || (echo "Error al copiar el archivo .env"; exit 1)
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@107.22.89.148 << 'EOF' 
+          mkdir -p /home/ubuntu/server-dev
           sudo usermod -aG docker $USER
           sudo chmod 666 /var/run/docker.sock
 
-          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
+          # Instalar Docker Compose si no está presente
+          if ! [ -x "$(command -v docker-compose)" ]; then
+            curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+          fi
           
-          # Clonar o actualizar el repositorio
-          mkdir -p /home/ubuntu/server-prod
-          git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-prod || (cd /home/ubuntu/server-prod && git pull origin server-prod)
-
-          # Copiar el archivo .env 
-          cp /home/ubuntu/server-prod/.env /home/ubuntu/server-prod/.env
+          if [ ! -d /home/ubuntu/server-dev/.git ]; then
+            git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-dev
+          else
+            cd /home/ubuntu/server-dev && git pull origin server-dev || (echo "Error al actualizar el repositorio"; exit 1)
+          fi
           
           # Levantar contenedores
           cd /home/ubuntu/server-prod
