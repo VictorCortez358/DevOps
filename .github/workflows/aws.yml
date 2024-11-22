@@ -13,21 +13,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # 1. Checkout del código
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up .env
-      run: |
-        echo -e "BACKEND_SERVICE=${{ secrets.BACKEND_SERVICE }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
-
+    # 2. Configurar Node.js
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
         node-version: '14'
 
+    # 3. Instalar dependencias
     - name: Install dependencies
       run: npm install
 
+    # 4. Instalar Docker y Docker Compose
     - name: Install Docker and Docker Compose
       run: |
         sudo apt-get update
@@ -38,9 +38,27 @@ jobs:
         sudo chmod +x /usr/local/bin/docker-compose
         sudo systemctl enable --now docker
 
+    # 5. Levantar servicios con docker-compose
+    - name: Start services with Docker Compose
+      run: docker-compose up -d
+
+    # 6. Ejecutar pruebas del backend
+    - name: Run backend tests
+      run: npm test
+
+    # 7. Ejecutar pruebas E2E para el frontend
+    - name: Run frontend tests
+      run: npm run e2e-test
+
+    # 8. Detener y eliminar servicios
+    - name: Stop and clean up Docker Compose
+      run: docker-compose down
+
+    # 9. Construir imagen Docker
     - name: Build Docker image
       run: docker-compose build
 
+    # 10. Configurar SSH para despliegue
     - name: Set up SSH
       uses: webfactory/ssh-agent@v0.5.3
       with:
@@ -52,56 +70,43 @@ jobs:
     - name: Add server-prod to known_hosts 
       run: ssh-keyscan -H 3.89.132.144 >> ~/.ssh/known_hosts
 
+    # 11. Desplegar a server-dev
     - name: Deploy to EC2 (server-dev)
       if: github.ref == 'refs/heads/server-dev'
       run: |
         scp .env ubuntu@54.92.132.30:/home/ubuntu/server-dev/.env
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@54.92.132.30 << 'EOF'
-          # Asegúrate de que Docker y Docker Compose estén instalados
-          sudo apt-get update
-          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-          curl -fsSL https://get.docker.com -o get-docker.sh
-          sudo sh get-docker.sh
-          sudo systemctl enable --now docker
-
           sudo usermod -aG docker $USER
           sudo chmod 666 /var/run/docker.sock
-
-          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
           
           # Clonar o actualizar el repositorio
           mkdir -p /home/ubuntu/server-dev
           git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-dev || (cd /home/ubuntu/server-dev && git pull origin server-dev)
-
+          # Copiar el archivo .env 
+          cp /home/ubuntu/server-dev/.env /home/ubuntu/server-dev/.env
+          
           # Levantar contenedores
           cd /home/ubuntu/server-dev
           docker-compose down
           docker-compose up -d
         EOF
 
+    # 12. Desplegar a server-prod
     - name: Deploy to EC2 (server-prod)
       if: github.ref == 'refs/heads/server-prod'
       run: |
         scp .env ubuntu@3.89.132.144:/home/ubuntu/server-prod/.env
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@3.89.132.144 << 'EOF'
-          # Asegúrate de que Docker y Docker Compose estén instalados
-          sudo apt-get update
-          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-          curl -fsSL https://get.docker.com -o get-docker.sh
-          sudo sh get-docker.sh
-          sudo systemctl enable --now docker
-
           sudo usermod -aG docker $USER
           sudo chmod 666 /var/run/docker.sock
-
-          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
           
           # Clonar o actualizar el repositorio
           mkdir -p /home/ubuntu/server-prod
           git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-prod || (cd /home/ubuntu/server-prod && git pull origin server-prod)
 
+          # Copiar el archivo .env 
+          cp /home/ubuntu/server-prod/.env /home/ubuntu/server-prod/.env
+          
           # Levantar contenedores
           cd /home/ubuntu/server-prod
           docker-compose down
