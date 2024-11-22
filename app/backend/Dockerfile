@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copia los archivos necesarios
 COPY package*.json ./
-COPY server.js ./
+COPY server.mjs ./
 
 # Instala las dependencias
 RUN npm install

@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copiar el package.json y package-lock.json y los archivos 
 COPY package*.json ./
-COPY server.js ./
+COPY server.mjs ./
 COPY index.html ./
 
 # Instalar dependencias
