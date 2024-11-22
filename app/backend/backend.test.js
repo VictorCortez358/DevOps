@@ -1,7 +1,6 @@
 import request from 'supertest';
 import app from './server';
 
-
 describe('GET /', () => {
     it('should return a list of products', async () => {
         const response = await request(app).get('/');
