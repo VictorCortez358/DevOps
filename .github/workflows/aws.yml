@@ -94,8 +94,11 @@ jobs:
     - name: Deploy to EC2 (server-dev)
       if: github.ref == 'refs/heads/server-dev'
       run: |
-        scp .env ubuntu@52.207.223.222:/home/ubuntu/server-dev/.env
-        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@52.207.223.222 << 'EOF'
+        scp .env ubuntu@52.207.223.222:/home/ubuntu/server-dev/.env || (echo "Error al copiar el archivo .env"; exit 1)
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@52.207.223.222 << 'EOF' 
+          # Crear el directorio si no existe
+          mkdir -p /home/ubuntu/server-dev
+
           sudo usermod -aG docker $USER
           sudo chmod 666 /var/run/docker.sock
           
@@ -106,7 +109,6 @@ jobs:
           fi
           
           # Crear directorio del proyecto si no existe y sincronizar el repositorio
-          mkdir -p /home/ubuntu/server-dev
           if [ ! -d /home/ubuntu/server-dev/.git ]; then
             git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-dev
           else
@@ -122,8 +124,10 @@ jobs:
     - name: Deploy to EC2 (server-prod)
       if: github.ref == 'refs/heads/server-prod'
       run: |
-        scp .env ubuntu@107.22.89.148:/home/ubuntu/server-prod/.env
+        scp .env ubuntu@107.22.89.148:/home/ubuntu/server-dev/.env || (echo "Error al copiar el archivo .env"; exit 1)
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@107.22.89.148 << 'EOF'
+          # Crear el directorio si no existe
+          mkdir -p /home/ubuntu/server-dev
           sudo usermod -aG docker $USER
           sudo chmod 666 /var/run/docker.sock
 
