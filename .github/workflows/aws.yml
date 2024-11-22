@@ -30,10 +30,20 @@ jobs:
       run: npm install
       working-directory: ./app/backend  # Ruta del backend
 
-    # Ejecutar pruebas del backend
-    - name: Run backend tests
-      run: npm test
-      working-directory: ./app/backend  # Ruta del backend
+    # Iniciar el servidor backend en segundo plano 
+    - name: Start backend server 
+      run: | 
+      nohup npm start & sleep 20 # Esperar para asegurarse de que el servidor esté corriendo 
+      working-directory: ./app/backend # Ruta del backend \
+    
+    # Verificar que el servidor backend esté corriendo 
+    - name: Verify backend server 
+      run: curl -I http://localhost:3001 
+    
+    # Ejecutar pruebas del backend 
+    - name: Run backend tests 
+      run: npm test 
+      working-directory: ./app/backend # Ruta del backend
 
     # Instalar dependencias para el frontend
     - name: Install frontend dependencies
@@ -54,6 +64,10 @@ jobs:
     # Verificar que el servidor frontend esté corriendo 
     - name: Verify frontend server 
       run: curl -I http://localhost:3000
+    
+    # Mostrar los logs del servidor frontend 
+    - name: Show frontend server logs 
+      run: cat nohup.out
 
     # Ejecutar pruebas del frontend
     - name: Run frontend tests
