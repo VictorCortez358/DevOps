@@ -1,0 +1,11 @@
+# Archivos y carpetas generados automáticamente
+node_modules/
+.terraform/
+
+# Archivos de configuración específicos del entorno
+.env
+
+# Archivos de bloqueo de dependencias
+package-lock.json
+terraform.tfstate
+
