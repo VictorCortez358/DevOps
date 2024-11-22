@@ -95,7 +95,7 @@ jobs:
       if: github.ref == 'refs/heads/server-dev'
       run: |
         scp .env ubuntu@52.207.223.222:/home/ubuntu/server-dev/.env
-        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@54.92.132.30 << 'EOF'
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@52.207.223.222 << 'EOF'
           sudo usermod -aG docker $USER
           sudo chmod 666 /var/run/docker.sock
           
@@ -123,7 +123,7 @@ jobs:
       if: github.ref == 'refs/heads/server-prod'
       run: |
         scp .env ubuntu@107.22.89.148:/home/ubuntu/server-prod/.env
-        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@3.89.132.144 << 'EOF'
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@107.22.89.148 << 'EOF'
           sudo usermod -aG docker $USER
           sudo chmod 666 /var/run/docker.sock
 
