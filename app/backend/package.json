@@ -5,17 +5,15 @@
     "main": "server.js",
     "scripts": {
         "start": "node server.js",
-        "test": "jest"
+        "test": "jest --detectOpenHandles"
     },
     "author": "Cortez",
     "license": "ISC",
+    "type": "module",
     "dependencies": {
         "express": "4.17.1"
     },
     "devDependencies": {
-        "@babel/core": "^7.26.0",
-        "@babel/preset-env": "^7.26.0",
-        "babel-jest": "^29.7.0",
         "jest": "^29.7.0",
         "supertest": "^7.0.0"
     }
