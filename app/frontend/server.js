@@ -3,7 +3,7 @@ import { join } from 'path';
 let app = express();
 
 // with docker-compose: container-name, with K8s: service-name 
-let backendEndpoints = process.env.BACKEND_SERVICE || 'backend';
+let backendEndpoints = process.env.BACKEND_SERVICE || 'localhost';
 
 app.get('/', function (req, res) {
     res.sendFile(join(__dirname, "index.html"));

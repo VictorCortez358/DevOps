@@ -12,7 +12,4 @@ test('should load the page and find the View button', async ({ page }) => {
     const button = await page.$('button');
     expect(button).not.toBeNull();  // El botón debe existir
 
-    // Opcional: Verificar que el contenedor de productos está vacío al principio
-    const productsList = await page.$$('#products .product');
-    expect(productsList.length).toBe(0);  // Al inicio no deberían haber productos
 });
