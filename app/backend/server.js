@@ -1,4 +1,4 @@
-let express = require('express');
+import express from 'express';
 let app = express();
 
 app.get('/', function (req, res) {
@@ -11,7 +11,7 @@ app.get('/', function (req, res) {
     });
 });
 
-module.exports = app; 
+export default app; 
 
 if (require.main === module) {
     app.listen(3001, () => console.log("app listening on port 3001!"));
