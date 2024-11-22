@@ -8,7 +8,7 @@ const http = require('http'); // Ahora podemos usar require para http
 
 let app = express();
 
-const backendEndpoints = process.env.BACKEND_SERVICE_DEV || process.env.BACKEND_SERVICE_PROD
+const backendEndpoints = process.env.BACKEND_SERVICE
 
 app.get('/', (req, res) => {
     // Usamos import.meta.url para obtener el __dirname
