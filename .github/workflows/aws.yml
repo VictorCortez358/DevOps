@@ -84,11 +84,13 @@ jobs:
     # Agregar servidores a known_hosts con manejo de errores 
     - name: Add server-dev to known_hosts 
       run: | 
-        ssh-keyscan -H 52.207.223.222 >> ~/.ssh/known_hosts || echo "Failed to add server-dev to known_hosts" 
+        ssh-keyscan -H 54.242.123.128 >> ~/.ssh/known_hosts || echo "Failed to add server-dev to known_hosts" 
     
     - name: Add server-prod to known_hosts 
       run: | 
-        ssh-keyscan -H 107.22.89.148 >> ~/.ssh/known_hosts || echo "Failed to add server-prod to known_hosts"
+        ssh-keyscan -H 34.224.214.23 >> ~/.ssh/known_hosts || echo "Failed to add server-prod to known_hosts"
+
+
     - name: Deploy to EC2 (server-dev)
       if: github.ref == 'refs/heads/server-dev'
       run: |
@@ -96,8 +98,8 @@ jobs:
           echo "Error: el archivo .env no existe"
           exit 1
         fi
-        scp .env ubuntu@52.207.223.222:/home/ubuntu/server-dev/.env || (echo "Error al copiar el archivo .env"; exit 1)
-        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@52.207.223.222 << 'EOF' 
+        scp .env ubuntu@54.242.123.128:/home/ubuntu/server-dev/.env || (echo "Error al copiar el archivo .env"; exit 1)
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@54.242.123.128 << 'EOF' 
           mkdir -p /home/ubuntu/server-dev
           sudo usermod -aG docker $USER
           sudo chmod 666 /var/run/docker.sock
@@ -127,8 +129,8 @@ jobs:
           echo "Error: el archivo .env no existe"
           exit 1
         fi
-        scp .env ubuntu@107.22.89.148:/home/ubuntu/server-dev/.env || (echo "Error al copiar el archivo .env"; exit 1)
-        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@107.22.89.148 << 'EOF' 
+        scp .env ubuntu@34.224.214.23:/home/ubuntu/server-dev/.env || (echo "Error al copiar el archivo .env"; exit 1)
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@34.224.214.23 << 'EOF' 
           mkdir -p /home/ubuntu/server-dev
           sudo usermod -aG docker $USER
           sudo chmod 666 /var/run/docker.sock
