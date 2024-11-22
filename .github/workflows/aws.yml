@@ -16,9 +16,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up .env
-      run: |
-        echo -e "BACKEND_SERVICE_DEV=${{ secrets.BACKEND_SERVICE_DEV }}\nBACKEND_SERVICE_PROD=${{ secrets.BACKEND_SERVICE_PROD }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
+    - name: Set up .env for dev
+      if: github.ref == 'refs/heads/server-dev'
+      run: echo "NODE_ENV=${{ secrets.NODE_ENV }}\nBACKEND_SERVICE_DEV=${{ secrets.BACKEND_SERVICE_DEV }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
+
+    - name: Set up .env for prod
+      if: github.ref == 'refs/heads/server-prod'
+      run: echo "NODE_ENV=${{ secrets.NODE_ENV }}\nBACKEND_SERVICE_PROD=${{ secrets.BACKEND_SERVICE_PROD }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
@@ -131,9 +135,10 @@ jobs:
           echo "Error: el archivo .env no existe"
           exit 1
         fi
-        scp .env ubuntu@107.22.89.148:/home/ubuntu/server-dev/.env || (echo "Error al copiar el archivo .env"; exit 1)
+        scp .env ubuntu@107.22.89.148:/home/ubuntu/server-prod/.env || (echo "Error al copiar el archivo .env"; exit 1)
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@107.22.89.148 << 'EOF' 
-          mkdir -p /home/ubuntu/server-dev
+          
+          mkdir -p /home/ubuntu/server-prod
           sudo usermod -aG docker $USER
           sudo chmod 666 /var/run/docker.sock
 
@@ -143,14 +148,17 @@ jobs:
             sudo chmod +x /usr/local/bin/docker-compose
           fi
           
-          if [ ! -d /home/ubuntu/server-dev/.git ]; then
-            git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-dev
+          # Clonar o actualizar el repositorio
+          if [ ! -d /home/ubuntu/server-prod/.git ]; then
+            git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/server-prod
+            cd /home/ubuntu/server-prod
+            git checkout server-prod
           else
-            cd /home/ubuntu/server-dev && git pull origin server-dev || (echo "Error al actualizar el repositorio"; exit 1)
+            cd /home/ubuntu/server-prod
+            git pull origin server-prod || (echo "Error al actualizar el repositorio"; exit 1)
           fi
           
-          # Levantar contenedores
-          cd /home/ubuntu/server-prod
+          # Levantar los contenedores
           docker-compose down
           docker-compose up -d
         EOF
