@@ -1,5 +1,5 @@
 import express from 'express';
-import http from 'http'; // Usar el módulo http correctamente
+import axios from 'axios'; // Importamos axios
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -8,43 +8,25 @@ const app = express();
 
 // Definir los endpoints de backend según el entorno
 const backendEndpoints =
-    process.env.NODE_ENV === 'production'
-        ? process.env.BACKEND_SERVICE_PROD
-        : process.env.BACKEND_SERVICE_DEV;
+  process.env.NODE_ENV === 'production'
+    ? process.env.BACKEND_SERVICE_PROD
+    : process.env.BACKEND_SERVICE_DEV;
 
 app.get('/', (req, res) => {
-    res.sendFile(join(__dirname, "index.html"));
+  res.sendFile(join(__dirname, "index.html"));
 });
 
-app.get('/get-products', (req, res) => {
-    const options = {
-        host: backendEndpoints,
-        path: '/',
-        port: '3001',
-        method: 'GET',
-    };
-
-    const callback = (response) => {
-        let str = '';
-        response.on('data', (chunk) => {
-            str += chunk;
-        });
-
-        response.on('end', () => {
-            console.log(str);
-            res.writeHead(200);
-            res.end(str);
-        });
-    };
-
-    const request = http.request(options, callback);
-    request.on('error', (err) => {
-        console.error('Error al realizar la solicitud:', err);
-        res.status(500).send('Error en el servidor');
-    });
-    request.end();
+app.get('/get-products', async (req, res) => {
+  try {
+    // Realizar la solicitud al backend usando axios
+    const response = await axios.get(`http://${backendEndpoints}:3001/`);
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error('Error al obtener productos:', error.message);
+    res.status(500).send('Error al comunicarse con el backend.');
+  }
 });
 
 app.listen(3000, () => {
-    console.log("App listening on port 3000!");
+  console.log("App listening on port 3000!");
 });

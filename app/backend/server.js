@@ -12,8 +12,6 @@ app.get('/', (req, res) => {
     });
 });
 
-export default app;
-
-if (import.meta.url === `file://${process.argv[1]}`) {
-    app.listen(3001, () => console.log("App listening on port 3001!"));
-}
+app.listen(3001, () => {
+    console.log("App listening on port 3001!");
+});
