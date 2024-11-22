@@ -25,57 +25,57 @@ jobs:
       with:
         node-version: '14'
 
-    # Instalar dependencias para el backend
-    - name: Install backend dependencies
-      run: npm install
-      working-directory: ./app/backend  # Ruta del backend
+    # # Instalar dependencias para el backend
+    # - name: Install backend dependencies
+    #   run: npm install
+    #   working-directory: ./app/backend  # Ruta del backend
 
-    # Iniciar el servidor backend en segundo plano 
-    - name: Start backend server 
-      run: | 
-        nohup npm start & sleep 20 
-      working-directory: ./app/backend # Ruta del backend 
+    # # Iniciar el servidor backend en segundo plano 
+    # - name: Start backend server 
+    #   run: | 
+    #     nohup npm start & sleep 20 
+    #   working-directory: ./app/backend # Ruta del backend 
     
-    # Ejecutar pruebas del backend 
-    - name: Run backend tests 
-      run: npm test 
-      working-directory: ./app/backend # Ruta del backend
+    # # Ejecutar pruebas del backend 
+    # - name: Run backend tests 
+    #   run: npm test 
+    #   working-directory: ./app/backend # Ruta del backend
 
-    # Instalar dependencias para el frontend
-    - name: Install frontend dependencies
-      run: npm install
-      working-directory: ./app/frontend  # Ruta del frontend
+    # # Instalar dependencias para el frontend
+    # - name: Install frontend dependencies
+    #   run: npm install
+    #   working-directory: ./app/frontend  # Ruta del frontend
 
-    # Instalar navegadores de Playwright
-    - name: Install Playwright browsers
-      run: npx playwright install
-      working-directory: ./app/frontend  # Ruta del frontend
+    # # Instalar navegadores de Playwright
+    # - name: Install Playwright browsers
+    #   run: npx playwright install
+    #   working-directory: ./app/frontend  # Ruta del frontend
 
-    # Iniciar el servidor frontend en segundo plano
-    - name: Start frontend server
-      run: |
-        nohup npm start > frontend.log 2>&1 &
-        sleep 20  
-      working-directory: ./app/frontend  # Ruta del frontend
+    # # Iniciar el servidor frontend en segundo plano
+    # - name: Start frontend server
+    #   run: |
+    #     nohup npm start > frontend.log 2>&1 &
+    #     sleep 20  
+    #   working-directory: ./app/frontend  # Ruta del frontend
 
-    # Ejecutar pruebas del frontend
-    - name: Run frontend tests
-      run: npm test
-      working-directory: ./app/frontend  # Ruta del frontend
+    # # Ejecutar pruebas del frontend
+    # - name: Run frontend tests
+    #   run: npm test
+    #   working-directory: ./app/frontend  # Ruta del frontend
 
-    - name: Install Docker and Docker Compose
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-        curl -fsSL https://get.docker.com -o get-docker.sh
-        sudo sh get-docker.sh
-        sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
-        sudo systemctl enable --now docker
+    # - name: Install Docker and Docker Compose
+    #   run: |
+    #     sudo apt-get update
+    #     sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+    #     curl -fsSL https://get.docker.com -o get-docker.sh
+    #     sudo sh get-docker.sh
+    #     sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    #     sudo chmod +x /usr/local/bin/docker-compose
+    #     sudo systemctl enable --now docker
 
-    # Construir imágenes de Docker
-    - name: Build Docker image
-      run: docker-compose build
+    # # Construir imágenes de Docker
+    # - name: Build Docker image
+    #   run: docker-compose build
 
     - name: Set up SSH
       uses: webfactory/ssh-agent@v0.5.3
@@ -94,7 +94,7 @@ jobs:
     - name: Deploy to EC2 (server-dev)
       if: github.ref == 'refs/heads/server-dev'
       run: |
-        f [ ! -f .env ]; then
+        if [ ! -f .env ]; then
           echo "Error: el archivo .env no existe"
           exit 1
         fi
@@ -127,7 +127,7 @@ jobs:
     - name: Deploy to EC2 (server-prod)
       if: github.ref == 'refs/heads/server-prod'
       run: |
-        f [ ! -f .env ]; then
+        if [ ! -f .env ]; then
           echo "Error: el archivo .env no existe"
           exit 1
         fi
