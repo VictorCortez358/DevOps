@@ -1,6 +1,6 @@
 import express from 'express';
 
-let app = express();
+const app = express();
 
 app.get('/', (req, res) => {
     res.json({
@@ -13,8 +13,4 @@ app.get('/', (req, res) => {
     });
 });
 
-const server = app.listen(3001, () => {
-    console.log('Backend listening on port 3001!');
-});
-
-export default server;
+export default app;

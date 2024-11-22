@@ -1,6 +1,6 @@
 export default {
     transform: {
-        '^.+\\.js$': 'jest-esm-transformer',
+      "^.+\\.js$": "babel-jest", // Usa Babel para transformar archivos .js
     },
 };
 
