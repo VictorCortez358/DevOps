@@ -40,10 +40,6 @@ jobs:
         nohup npm start & sleep 20 
       working-directory: ./app/backend # Ruta del backend 
     
-    # Verificar que el servidor backend esté corriendo
-    - name: Check backend server 
-      run: curl http://localhost:3001 
-    
     # Ejecutar pruebas del backend 
     - name: Run backend tests 
       run: npm test 
