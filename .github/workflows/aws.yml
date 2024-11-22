@@ -40,6 +40,11 @@ jobs:
       run: npm install
       working-directory: ./app/frontend  # Ruta del frontend
 
+    # Instalar navegadores de Playwright
+    - name: Install Playwright browsers
+      run: npx playwright install
+      working-directory: ./app/frontend  # Ruta del frontend
+
     # Ejecutar pruebas del frontend
     - name: Run frontend tests
       run: npm test
