@@ -1,7 +1,7 @@
 import express from 'express';
-let app = express();
+const app = express();
 
-app.get('/', function (req, res) {
+app.get('/', (req, res) => {
     res.json({
         products: [
             { name: "MacBook Air M2 2022 midnight 13.6", price: 500 },
@@ -11,8 +11,9 @@ app.get('/', function (req, res) {
     });
 });
 
-export default app; 
+export default app;
 
-if (require.main === module) {
-    app.listen(3001, () => console.log("app listening on port 3001!"));
+if (import.meta.url === `file://${process.argv[1]}`) {
+    app.listen(3001, () => console.log("App listening on port 3001!"));
 }
+

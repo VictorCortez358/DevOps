@@ -1,7 +1,7 @@
 import express from 'express';
-import { Http2ServerRequest } from 'http2';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import http from 'http'; // Importar http de forma explícita en ESM
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -37,7 +37,7 @@ app.get('/get-products', (req, res) => {
         });
     };
 
-    const req = Http2ServerRequest.request(options, callback);
+    const req = http.request(options, callback);
     req.end();
 });
 
