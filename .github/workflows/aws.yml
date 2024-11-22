@@ -48,9 +48,9 @@ jobs:
     # Iniciar el servidor frontend en segundo plano
     - name: Start frontend server
       run: |
-        nohup npm start &
-        sleep 30  # Esperar para asegurarse de que el servidor esté corriendo
-
+        cd ./app/frontend && nohup npm start &
+        sleep 20  # Asegúrate de que el servidor esté listo antes de ejecutar las pruebas
+        
     # Verificar que el servidor frontend esté corriendo 
     - name: Verify frontend server 
       run: curl -I http://localhost:3000
