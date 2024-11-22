@@ -16,9 +16,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up .env
+    - name: Set up .env for dev branch
+      if: github.ref == 'refs/heads/server-dev'
       run: |
-        echo -e "NODE_ENV=${{ secrets.NODE_ENV }}\nBACKEND_SERVICE_DEV=${{ secrets.BACKEND_SERVICE_DEV }}\nBACKEND_SERVICE_PROD=${{ secrets.BACKEND_SERVICE_PROD }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
+        echo -e "BACKEND_SERVICE_DEV=${{ secrets.BACKEND_SERVICE_DEV }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
+
+    - name: Set up .env for prod branch
+      if: github.ref == 'refs/heads/server-prod'
+      run: |
+        echo -e "BACKEND_SERVICE_PROD=${{ secrets.BACKEND_SERVICE_PROD }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
+  
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
