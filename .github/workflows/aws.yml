@@ -18,12 +18,19 @@ jobs:
 
     - name: Set up .env file
       run: |
-        if [[ "${{ github.base_ref }}" == "server-dev" ]]; then
-          echo -e "BACKEND_SERVICE=${{ secrets.BACKEND_SERVICE_DEV }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
-        elif [[ "${{ github.base_ref }}" == "server-prod" ]]; then
-          echo -e "BACKEND_SERVICE=${{ secrets.BACKEND_SERVICE_PROD }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
+        if [[ "${{ github.event_name }}" == "push" ]]; then
+          if [[ "${{ github.ref }}" == "refs/heads/server-dev" ]]; then
+            echo -e "BACKEND_SERVICE=${{ secrets.BACKEND_SERVICE_DEV }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
+          elif [[ "${{ github.ref }}" == "refs/heads/server-prod" ]]; then
+            echo -e "BACKEND_SERVICE=${{ secrets.BACKEND_SERVICE_PROD }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
+          fi
+        elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          if [[ "${{ github.base_ref }}" == "server-dev" ]]; then
+            echo -e "BACKEND_SERVICE=${{ secrets.BACKEND_SERVICE_DEV }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
+          elif [[ "${{ github.base_ref }}" == "server-prod" ]]; then
+            echo -e "BACKEND_SERVICE=${{ secrets.BACKEND_SERVICE_PROD }}\nCOMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}" > .env
+          fi
         fi
-
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
@@ -57,15 +64,10 @@ jobs:
         sleep 20  
       working-directory: ./app/frontend  # Ruta del frontend
 
-    # Veirificar que el servidor frontend esté corriendo
-    - name: Check frontend server
-      run: curl http://localhost:3000
-
     # Ejecutar pruebas del frontend
     - name: Run frontend tests
       run: npm test
       working-directory: ./app/frontend  # Ruta del frontend
-
 
     - name: Install Docker and Docker Compose
       run: |
@@ -76,18 +78,6 @@ jobs:
         sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         sudo chmod +x /usr/local/bin/docker-compose
         sudo systemctl enable --now docker
-
-    - name: Debug environment variables
-      run: |
-        echo "BACKEND_SERVICE_DEV: ${{ secrets.BACKEND_SERVICE_DEV }}"
-        echo "BACKEND_SERVICE_PROD: ${{ secrets.BACKEND_SERVICE_PROD }}"
-        echo "COMPOSE_PROJECT_NAME: ${{ secrets.COMPOSE_PROJECT_NAME }}"
-
-    - name: List files in the repository
-      run: ls -alh
-
-    - name: Verify .env file
-      run: cat .env
 
     - name: Build Docker image
       run: docker-compose build
