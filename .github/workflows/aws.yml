@@ -97,10 +97,10 @@ jobs:
         SERVER_IP=""
         BRANCH_DIR=""
         
-        if [[ "${{ github.ref }}" == "refs/heads/server-dev" ]]; then
+        if [[ "${{ github.base_ref }}" == "server-dev" ]]; then
           SERVER_IP="54.242.123.128"
           BRANCH_DIR="server-dev"
-        elif [[ "${{ github.ref }}" == "refs/heads/server-prod" ]]; then
+        elif [[ "${{ github.base_ref }}" == "server-prod" ]]; then
           SERVER_IP="34.224.214.23"
           BRANCH_DIR="server-prod"
         fi
