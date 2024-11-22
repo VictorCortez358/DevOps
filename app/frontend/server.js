@@ -1,47 +1,30 @@
-let express = require('express');
-let path = require('path');
+import express from 'express';
+import axios from 'axios'; // Importamos axios
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-const __dirname = __dirname(fileURLToPath(import.meta.url));
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 
-// with docker-compose: container-name, with K8s: service-name 
 const backendEndpoints =
     process.env.NODE_ENV === 'production'
         ? process.env.BACKEND_SERVICE_PROD
         : process.env.BACKEND_SERVICE_DEV;
 
-app.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname, "index.html"));
+app.get('/', (req, res) => {
+    res.sendFile(join(__dirname, 'index.html'));
 });
 
-app.get('/get-products', function (req, res) {
-    var http = require('http');
-
-    var options = {
-        host: backendEndpoints,
-        path: '/',
-        port: '3001',
-        method: 'GET'
-    };
-
-    callback = function (response) {
-        var str = ''
-        response.on('data', function (chunk) {
-            str += chunk;
-        });
-
-        response.on('end', function () {
-            console.log(str);
-            res.writeHead(200)
-            res.end(str);
-        });
+app.get('/get-products', async (req, res) => {
+    try {
+        const response = await axios.get(`${backendEndpoints}`);
+        res.status(200).json(response.data);
+    } catch (error) {
+        console.error('Error al obtener productos:', error.message);
+        res.status(500).send('Error al comunicarse con el backend.');
     }
-
-    var req = http.request(options, callback);
-    req.write("");
-    req.end();
 });
 
-app.listen(3000, function () {
-    console.log("app listening on port 3000!");
+app.listen(3000, () => {
+    console.log('Frontend listening on port 3000!');
 });
