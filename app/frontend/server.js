@@ -9,7 +9,7 @@ const http = require('http'); // Ahora podemos usar require para http
 let app = express();
 
 const backendEndpoints =
-    process.env.NODE_ENV === 'production'
+    process.env.NODE_ENV === 'development'
         ? process.env.BACKEND_SERVICE_PROD
         : process.env.BACKEND_SERVICE_DEV;
 
