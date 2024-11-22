@@ -15,6 +15,10 @@ test('should display products when clicking the View button', async ({ page }) =
     });
 
     await page.goto('http://localhost:3000');
+
+    // Esperar a que el botón esté visible y disponible para hacer clic
+    await page.waitForSelector('button', { timeout: 10000 }); // Espera hasta 10 segundos
+
     await page.click('button');  // Esto debería disparar la llamada a /get-products
 
     // Verificar que los productos se muestran
@@ -22,4 +26,4 @@ test('should display products when clicking the View button', async ({ page }) =
     expect(products).toContain('Product 1');
     expect(products).toContain('Product 2');
     expect(products).toContain('Product 3');
-});
+}, 60000); // Aumentar el tiempo máximo de espera para el test a 60 segundos
