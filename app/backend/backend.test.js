@@ -1,5 +1,7 @@
 const request = require('supertest');
-const app = require('./backend');
+const app = require('./server');
+
+
 
 describe('GET /', () => {
     it('should return a list of products', async () => {
