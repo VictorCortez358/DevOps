@@ -22,7 +22,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '14'
+        node-version: '18'
 
     # # Instalar dependencias para el backend
     # - name: Install backend dependencies
@@ -120,7 +120,7 @@ jobs:
           # Levantar contenedores
           cd /home/ubuntu/server-dev
           docker-compose down
-          docker-compose up -d
+          docker-compose up -d --build
         EOF
     - name: Deploy to EC2 (server-prod)
       if: github.ref == 'refs/heads/server-prod'
@@ -149,5 +149,5 @@ jobs:
           # Levantar contenedores
           cd /home/ubuntu/server-prod
           docker-compose down
-          docker-compose up -d
+          docker-compose up -d --build
         EOF
