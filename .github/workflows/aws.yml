@@ -16,6 +16,9 @@ jobs:
     # 1. Checkout del código
     - name: Checkout code
       uses: actions/checkout@v2
+    # 2. Verificar la estructura del repositorio 
+    - name: List files 
+      run: ls -la  
 
     # 2. Configurar Node.js
     - name: Set up Node.js
@@ -49,7 +52,7 @@ jobs:
       run: docker-compose up -d
 
     # 7. Ejecutar pruebas del backend
-    - name: Run backend tests
+    - name: Run backend test
       run: npm test
 
     # 8. Ejecutar pruebas E2E para el frontend
