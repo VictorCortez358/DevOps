@@ -1,7 +1,7 @@
 import express from 'express';
+import http from 'http'; // Usar el módulo http correctamente
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import http from 'http'; // Importar http de forma explícita en ESM
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -37,8 +37,12 @@ app.get('/get-products', (req, res) => {
         });
     };
 
-    const req = http.request(options, callback);
-    req.end();
+    const request = http.request(options, callback);
+    request.on('error', (err) => {
+        console.error('Error al realizar la solicitud:', err);
+        res.status(500).send('Error en el servidor');
+    });
+    request.end();
 });
 
 app.listen(3000, () => {
