@@ -40,6 +40,10 @@ jobs:
         nohup npm start & sleep 20 
       working-directory: ./app/backend # Ruta del backend 
     
+    # Verificar que el servidor backend esté corriendo
+    - name: Check backend server 
+      run: curl http://localhost:3001 
+    
     # Ejecutar pruebas del backend 
     - name: Run backend tests 
       run: npm test 
@@ -61,6 +65,10 @@ jobs:
         nohup npm start > frontend.log 2>&1 &
         sleep 20  
       working-directory: ./app/frontend  # Ruta del frontend
+
+    # Veirificar que el servidor frontend esté corriendo
+    - name: Check frontend server
+      run: curl http://localhost:3000
 
     # Ejecutar pruebas del frontend
     - name: Run frontend tests
