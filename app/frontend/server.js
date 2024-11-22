@@ -1,12 +1,12 @@
-let express = require('express');
-let path = require('path');
+import express from 'express';
+import { join } from 'path';
 let app = express();
 
 // with docker-compose: container-name, with K8s: service-name 
 let backendEndpoints = process.env.BACKEND_SERVICE || 'backend';
 
 app.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname, "index.html"));
+    res.sendFile(join(__dirname, "index.html"));
 });
 
 app.get('/get-products', function (req, res) {
