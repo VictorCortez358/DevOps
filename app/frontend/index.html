@@ -83,7 +83,7 @@
                 return;
             }
 
-            const response = await fetch('/get-products');
+            const response = await fetch(`${window.location.href}get-products`);            
             const jsonData = await response.json();
 
             let productsList = document.getElementById("products");
