@@ -98,9 +98,9 @@ jobs:
           echo "Error: el archivo .env no existe"
           exit 1
         fi
+        scp .env ubuntu@54.242.123.128:/home/ubuntu/server-dev/.env || (echo "Error al copiar el archivo .env"; exit 1)
+
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@54.242.123.128 << 'EOF' 
-          mkdir -p /home/ubuntu/server-dev
-          scp .env ubuntu@54.242.123.128:/home/ubuntu/server-dev/.env || (echo "Error al copiar el archivo .env"; exit 1)
           sudo usermod -aG docker $USER
           sudo chmod 666 /var/run/docker.sock
           
