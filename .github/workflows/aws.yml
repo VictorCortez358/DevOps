@@ -97,6 +97,7 @@ jobs:
         SERVER_IP=""
         BRANCH_DIR=""
         
+        # Determina la dirección IP y la rama según el contexto
         if [[ "${{ github.base_ref }}" == "server-dev" ]]; then
           SERVER_IP="54.242.123.128"
           BRANCH_DIR="server-dev"
@@ -105,12 +106,16 @@ jobs:
           BRANCH_DIR="server-prod"
         fi
 
+        # Asegúrate de que SERVER_IP no esté vacío
         if [ -z "$SERVER_IP" ]; then
           echo "Invalid branch or missing server configuration"
           exit 1
         fi
         
+        # Transfiere el archivo .env al servidor correspondiente
         scp .env ubuntu@$SERVER_IP:/home/ubuntu/$BRANCH_DIR/.env
+        
+        # Despliega y configura el entorno en el servidor
         ssh -o StrictHostKeyChecking=no ubuntu@$SERVER_IP << EOF
           sudo usermod -aG docker \$USER
           sudo chmod 666 /var/run/docker.sock
@@ -120,8 +125,11 @@ jobs:
             sudo chmod +x /usr/local/bin/docker-compose
           fi
 
+          # Si el directorio no existe o no es un repositorio git, clónalo
           if [ ! -d /home/ubuntu/$BRANCH_DIR/.git ]; then
             git clone https://github.com/VictorCortez358/DevOps /home/ubuntu/$BRANCH_DIR
+            cd /home/ubuntu/$BRANCH_DIR
+            git checkout server-dev  # Si es un clon, asegúrate de usar la rama correcta
           else
             cd /home/ubuntu/$BRANCH_DIR && git pull origin $BRANCH_DIR
           fi
